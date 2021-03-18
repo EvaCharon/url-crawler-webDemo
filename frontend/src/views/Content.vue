@@ -60,6 +60,20 @@
         });
       }
     },
+    created() {
+      // 使用方法
+      // Vue.axios.get(api).then((response) => {
+      //   console.log(response.data)
+      // })
+
+      // this.axios.get(api).then((response) => {
+      //   console.log(response.data)
+      // })
+
+      // this.$http.get(api).then((response) => {
+      //   console.log(response.data)
+      // })
+    },
     mounted() {},
     components: {},
   };
