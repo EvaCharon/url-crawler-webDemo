@@ -9,10 +9,14 @@ import "./global.css";
 import axios from "axios";
 import VueAxios from "vue-axios";
 
+axios.defaults.baseURL = '/api'
+axios.defaults.headers.post['Content-Type'] = 'application/json';
 Vue.config.productionTip = false;
 
 Vue.use(VueAxios, axios);
 Vue.use(ElementUI);
+
+
 
 new Vue({
   router,

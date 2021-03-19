@@ -14,10 +14,10 @@
       <div class="rightTop">
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-card shadow="hover"> xxxxx </el-card>
+            <el-card shadow="hover"> Scan Selected URLs </el-card>
           </el-col>
           <el-col :span="8">
-            <el-card shadow="hover"> Scan all </el-card>
+            <el-card shadow="hover" @click.native="scanAll"> Scan all URLs </el-card>
           </el-col>
           <el-col :span="8">
             <el-card shadow="hover"> Generate Report </el-card>
@@ -27,7 +27,7 @@
       <div class="rightBottom">
         <el-row :gutter="20">
           <el-col :span="12">
-            <div class="content">11111</div>
+            <div class="content">{{`${working_state}`}}</div>
           </el-col>
           <el-col :span="12">
             <div class="content">222</div>
@@ -46,6 +46,7 @@
         style: {
           borderRadius: "50%",
         },
+        working_state:"No scanning task.",
         data: [{
           label: '一级 1',
           children: [{
@@ -90,7 +91,66 @@
     methods: {
       handleNodeClick(data) {
         console.log(data);
-      }
+      },
+      // updateURL(){
+      //   this.axios.get("/updateURL").then((response) => {
+      //   console.log(response.data.masterURL);
+      //   let masterURL_array = response.data.masterURL;
+      //   let child_array = response.data.childURL;
+      //   let treeData = new Array();
+      //   for(let i=0;i<masterURL_array.length;i++){
+      //     let child = new Array();
+      //     if(i<child_array.length){
+      //       for(let j=0;j<child_array[i].length;j++){
+      //           let empty = new Array();
+      //           let tmp_child = {label:child_array[i][j],children:empty};
+      //           child.push(tmp_child);
+      //       }
+      //     }
+      //     let tmp = {label:masterURL_array[i],children:child};
+      //     treeData.push(tmp);
+      //   }
+      //   this.data = treeData;
+      // })
+      // },
+      updateState(){
+      this.axios.get("/updateState").then((response) => {
+        console.log(this.working_state);
+        let sentences = response.data.content;
+        this.working_state = "";
+        for(let i=0;i<sentences.length;i++){
+            this.working_state+=sentences[i].text;
+            this.working_state+="\n";
+        }
+      })
+      },
+      scanAll(){
+        console.log("11")
+        this.axios.get("/scanAll").then((response) => {
+          console.log(response.data)
+        })
+        this.axios.get("/updateURL").then((response) => {
+        console.log(response.data.masterURL);
+        let masterURL_array = response.data.masterURL;
+        let child_array = response.data.childURL;
+        let treeData = new Array();
+        for(let i=0;i<masterURL_array.length;i++){
+          let child = new Array();
+          if(i<child_array.length){
+            for(let j=0;j<child_array[i].length;j++){
+                let empty = new Array();
+                let tmp_child = {label:child_array[i][j],children:empty};
+                child.push(tmp_child);
+            }
+          }
+          let tmp = {label:masterURL_array[i],children:child};
+          treeData.push(tmp);
+        }
+        this.data = treeData;
+      })
+      //this.$options.methods.updateURL();
+      },
+     
     },
     beforeCreate() {
       const {
@@ -112,6 +172,18 @@
       //   console.log(response.data)
       // })
 
+      this.axios.get("/getMaster").then((response) => {
+        console.log(response.data);
+        let masterURL_array = response.data.masterURL;
+        let treeData = new Array();
+        for(let i=0;i<masterURL_array.length;i++){
+          let empty = new Array();
+          let tmp = {label:masterURL_array[i],children:empty};
+          treeData.push(tmp);
+        }
+        this.data = treeData;
+      })
+
       // this.axios.get(api).then((response) => {
       //   console.log(response.data)
       // })
@@ -120,8 +192,19 @@
       //   console.log(response.data)
       // })
     },
-    mounted() {},
+    mounted() {
+      this.scanAll();
+      this.updateState();
+      this.timer = window.setInterval(()=>{
+        setTimeout(()=>{
+          this.updateState();
+        },0)
+      },1000)
+    },
     components: {},
+    destroyed(){
+      window.clearINterval(this.timer);
+    }
   };
 </script>
 

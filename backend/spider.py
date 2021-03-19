@@ -34,6 +34,7 @@ def read(ms):
 ## print html doc(bs4)
 ## spider_deepth control the deepth of spider
 def scan_url_list(url_set, spider_deepth):
+    rtn_str = []
     for i in range(0, spider_deepth):
         tmp_set = set()
         for web_url in url_set:
@@ -51,8 +52,11 @@ def scan_url_list(url_set, spider_deepth):
                         site_url.append(temp)
             t2 = time.time()
             print("time for ", web_url, "is ", t2-t1)
+            rtn_str.append("time for "+web_url+"is "+str(t2-t1))
         url_set.update(tmp_set)
-    return url_set
+        cnt = len(url_set)
+        rtn_str.append("Scanning URLs in total : "+str(cnt))
+    return url_set, rtn_str
 
 def scan_single_url(url, spider_deepth):
     url_tree = set();
