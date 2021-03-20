@@ -39,20 +39,23 @@ def scan_url_list(url_set, spider_deepth):
         tmp_set = set()
         for web_url in url_set:
             t1 = time.time()
-            html = ulb.urlopen(web_url).read()
-            soup = BeautifulSoup(html, "lxml")
-            for link in soup.find_all('a'):
-                temp = link.get('href')
-                if temp is not None and len(temp) > 1:
-                    if temp.startswith('/'):
-                        tmp_set.add(web_url + temp)
-                        site_url.append(web_url + temp)
-                    if temp.startswith('http'):
-                        tmp_set.add(temp)
-                        site_url.append(temp)
-            t2 = time.time()
-            print("time for ", web_url, "is ", t2-t1)
-            rtn_str.append("time for "+web_url+"is "+str(t2-t1))
+            try:
+                html = ulb.urlopen(web_url).read()
+                soup = BeautifulSoup(html, "lxml")
+                for link in soup.find_all('a'):
+                    temp = link.get('href')
+                    if temp is not None and len(temp) > 1:
+                        if temp.startswith('/'):
+                            tmp_set.add(web_url + temp)
+                            site_url.append(web_url + temp)
+                        if temp.startswith('http'):
+                            tmp_set.add(temp)
+                            site_url.append(temp)
+                t2 = time.time()
+                print("time for ", web_url, "is ", t2-t1)
+                rtn_str.append("time for "+web_url+"is "+str(t2-t1))
+            except:
+                continue
         url_set.update(tmp_set)
         cnt = len(url_set)
         rtn_str.append("Scanning URLs in total : "+str(cnt))
@@ -68,17 +71,20 @@ def scan_single_url(url, spider_deepth):
             if web_url in have_visted:
                 continue
             t1 = time.time()
-            html = ulb.urlopen(web_url).read()
-            soup = BeautifulSoup(html, "lxml")
-            for link in soup.find_all('a'):
-                temp = link.get('href')
-                if temp is not None and len(temp) > 1:
-                    if temp.startswith('/'):
-                        help_set.add(web_url + temp)
-                    if temp.startswith('http'):
-                        help_set.add(temp)
-            t2 = time.time()
-            print("time for ", web_url, "is ", t2-t1)
+            try:
+                html = ulb.urlopen(web_url).read()
+                soup = BeautifulSoup(html, "lxml")
+                for link in soup.find_all('a'):
+                    temp = link.get('href')
+                    if temp is not None and len(temp) > 1:
+                        if temp.startswith('/'):
+                            help_set.add(web_url + temp)
+                        if temp.startswith('http'):
+                            help_set.add(temp)
+                t2 = time.time()
+                print("time for ", web_url, "is ", t2-t1)
+            except:
+                continue
         have_visted = url_tree
         url_tree.update(help_set)
     return url_tree
@@ -94,9 +100,10 @@ def output(filename):
 
 
 
-# ##Module start running
+##Module start running
 # master_website = read('master_website.txt')
-# scan_url_list(master_website, 1)
+# print(master_website)
+# #scan_url_list(master_website, 1)
 # print(len(scan_single_url("https://www.canadapharmacy.com",1)) + len(scan_single_url("http://news.163.com/",1)))
 # output('output.txt')
 
