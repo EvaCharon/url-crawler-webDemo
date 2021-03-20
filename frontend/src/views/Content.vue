@@ -7,14 +7,21 @@
         </el-col>
       </el-row>
       <div class="leftBottom">
-        <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+        <el-tree 
+            node-key="id"
+            :data="data" 
+            :props="defaultProps" 
+            ref="tree"
+            show-checkbox 
+            @node-click="handleNodeClick">
+        </el-tree>
       </div>
     </div>
     <div class="rightArea">
       <div class="rightTop">
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-card shadow="hover"> Scan Selected URLs </el-card>
+            <el-card shadow="hover" @click.native="scanSelect"> Scan Selected URLs </el-card>
           </el-col>
           <el-col :span="8">
             <el-card shadow="hover" @click.native="scanAll"> Scan all URLs </el-card>
@@ -47,6 +54,7 @@
           borderRadius: "50%",
         },
         working_state:"No scanning task.",
+        expanded_keys: [],
         data: [{
           label: '一级 1',
           children: [{
@@ -92,38 +100,49 @@
       handleNodeClick(data) {
         console.log(data);
       },
-      // updateURL(){
-      //   this.axios.get("/updateURL").then((response) => {
-      //   console.log(response.data.masterURL);
-      //   let masterURL_array = response.data.masterURL;
-      //   let child_array = response.data.childURL;
-      //   let treeData = new Array();
-      //   for(let i=0;i<masterURL_array.length;i++){
-      //     let child = new Array();
-      //     if(i<child_array.length){
-      //       for(let j=0;j<child_array[i].length;j++){
-      //           let empty = new Array();
-      //           let tmp_child = {label:child_array[i][j],children:empty};
-      //           child.push(tmp_child);
-      //       }
-      //     }
-      //     let tmp = {label:masterURL_array[i],children:child};
-      //     treeData.push(tmp);
-      //   }
-      //   this.data = treeData;
-      // })
-      // },
+      updateURL(){
+        this.axios.get("/updateURL").then((response) => {
+        console.log(response.data.masterURL);
+        let masterURL_array = response.data.masterURL;
+        let child_array = response.data.childURL;
+        let treeData = new Array();
+        for(let i=0;i<masterURL_array.length;i++){
+          let ifSelect = false;
+          let child = new Array();
+          if(i<child_array.length){
+            for(let j=0;j<child_array[i].length;j++){
+                let empty = new Array();
+                let tmp_child = {label:child_array[i][j],children:empty,style:'child',disabled:true};
+                child.push(tmp_child);
+            }
+          }
+          if(child.length>0)
+            ifSelect = true;
+          let tmp = {label:masterURL_array[i],children:child,style:'master',disabled:ifSelect,id:i};
+          treeData.push(tmp);
+        }
+        this.data = treeData;
+      })
+      },
+      scanSelect(){
+        console.log(this.$refs.tree.getCheckedKeys());
+        let dat = {"index":this.$refs.tree.getCheckedKeys()};
+        this.axios.post("/getSelected",dat).then((response) =>{
+            console.log(response.data)
+        })
+      },
       updateState(){
       this.axios.get("/updateState").then((response) => {
         console.log(this.working_state);
         let sentences = response.data.content;
-        this.working_state = "";
+        this.working_state = "Press button to start!";
         for(let i=0;i<sentences.length;i++){
             this.working_state+=sentences[i].text;
             this.working_state+="\n";
         }
       })
       },
+      
       scanAll(){
         console.log("11")
         this.axios.get("/scanAll").then((response) => {
@@ -139,16 +158,17 @@
           if(i<child_array.length){
             for(let j=0;j<child_array[i].length;j++){
                 let empty = new Array();
-                let tmp_child = {label:child_array[i][j],children:empty};
+                let tmp_child = {label:child_array[i][j],children:empty,style:"child",disabled:true};
                 child.push(tmp_child);
             }
           }
-          let tmp = {label:masterURL_array[i],children:child};
+          let tmp = {label:masterURL_array[i],children:child,style:"master",disabled:true,id:i};
           treeData.push(tmp);
         }
         this.data = treeData;
       })
       //this.$options.methods.updateURL();
+      //this.updateURL();
       },
      
     },
@@ -178,8 +198,9 @@
         let treeData = new Array();
         for(let i=0;i<masterURL_array.length;i++){
           let empty = new Array();
-          let tmp = {label:masterURL_array[i],children:empty};
+          let tmp = {label:masterURL_array[i],children:empty,style:"master",id:i};
           treeData.push(tmp);
+          this.expanded_keys.push(i);
         }
         this.data = treeData;
       })
@@ -193,11 +214,18 @@
       // })
     },
     mounted() {
-      this.scanAll();
+      this.updateURL();
       this.updateState();
       this.timer = window.setInterval(()=>{
         setTimeout(()=>{
-          this.updateState();
+          this.axios.get("/ifUpdate").then((response) => {
+          if(response.data.if_updateURL){
+              this.updateURL();
+          }
+          if(response.data.if_updateState){
+              this.updateState();
+          }      
+      }) 
         },0)
       },1000)
     },
