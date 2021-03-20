@@ -3,11 +3,12 @@
     <div class="leftArea">
       <el-row class="leftTop">
         <el-col :span="24">
-          <el-card shadow="always"> {{ `Welcome [${user}]` }} </el-card>
+          <el-card shadow="never" style="font-size:30px"> {{ `Welcome!   [ ${user} ]` }} </el-card>
         </el-col>
       </el-row>
       <div class="leftBottom">
-        <el-tree 
+          <el-card shadow="never"  class="box-card">
+            <el-tree 
             node-key="id"
             :data="data" 
             :props="defaultProps" 
@@ -15,7 +16,8 @@
             show-checkbox
             default-expand-all 
             @node-click="handleNodeClick">
-        </el-tree>
+          </el-tree> 
+        </el-card>   
       </div>
     </div>
     <div class="rightArea">
@@ -35,10 +37,23 @@
       <div class="rightBottom">
         <el-row :gutter="20">
           <el-col :span="12">
-            <div class="content">{{`${working_state}`}}</div>
+            <div class="content">
+              <el-card class="box-card">
+                  <div v-for="item in working_state"  class="text item" v-bind:key="item.id">
+                    {{item }}
+                  </div>
+                </el-card>
+            </div>
           </el-col>
           <el-col :span="12">
-            <div class="content">222</div>
+            <div class="content">
+              <el-card class="box-card">
+                  <!-- <div v-for="item in working_state"  class="text item" v-bind:key="item.id">
+                    {{item }}
+                  </div> -->
+                  something to show.
+                </el-card>
+            </div>
           </el-col>
         </el-row>
       </div>
@@ -54,7 +69,7 @@
         style: {
           borderRadius: "50%",
         },
-        working_state:"No scanning task.",
+        working_state:["No scanning task."],
         expanded_keys: [],
         data: [{
           label: '一级 1',
@@ -140,12 +155,13 @@
       },
       updateState(){
       this.axios.get("/updateState").then((response) => {
+        this.working_state.length = 0;
         console.log(this.working_state);
         let sentences = response.data.content;
-        this.working_state = "Press button to start!";
+        this.working_state.push("Press button to start!");
         for(let i=0;i<sentences.length;i++){
-            this.working_state+=sentences[i].text;
-            this.working_state+="\n";
+            this.working_state.push(String(sentences[i].text));
+            //this.working_state+="\n;
         }
       })
       },
@@ -207,7 +223,7 @@
       // Vue.axios.get(api).then((response) => {
       //   console.log(response.data)
       // })
-
+        
       this.axios.get("/getMaster").then((response) => {
         console.log(response.data);
         let masterURL_array = response.data.masterURL;
@@ -219,6 +235,8 @@
           this.expanded_keys.push(i);
         }
         this.data = treeData;
+        this.updateURL();
+        this.updateState();
       })
 
       // this.axios.get(api).then((response) => {
@@ -264,13 +282,17 @@
 
   .container {
     display: flex;
-    width: 100%;
-    height: 100%;
+    width: 95%;
+    height: 95%;
+    background: #efefef;
+    padding:20px;
+    overflow-y:hidden;
+    overflow-x:hidden;
   }
 
   /* 左边 */
   .leftArea {
-    width: 20%;
+    width: 25%;
     height: 100%;
     padding-top: 10px;
     display: flex;
@@ -280,24 +302,28 @@
   .leftTop {
     text-align: center;
     height: 10%;
+    background-color: #ffffff;
   }
 
   .leftArea .leftTop .el-card {
     font-weight: 500;
+    border: #ffffff;
   }
 
   .leftBottom {
     width: 100%;
     flex: 1;
-    border: 1px solid rgba(0, 0, 0, 0.25);
+    background: #ffffff;
     box-sizing: border-box;
+    overflow-y:scroll;
+    overflow-x:hidden;
   }
 
   /* 右边 */
   .rightArea {
     flex: 1;
     height: 100%;
-    padding: 10px 20px 0 20px;
+    padding: 10px 20px 10px 20px;
     display: flex;
     flex-direction: column;
   }
@@ -322,7 +348,9 @@
 
   .rightArea .rightBottom {
     width: 100%;
+    height:80%;
     flex: 1;
+    padding-top:15px;
   }
   .rightArea .rightBottom .el-row {
     height: 100%;
@@ -331,8 +359,14 @@
     height: 100%;
   }
   .rightBottom .el-col .content {
-    border: 1px solid rgba(0, 0, 0, 0.25);
     height: 100%;
+    padding:10px;
+  }
+  .rightBottom .el-col .content .box-card{
+    overflow-y:scroll;
+    overflow-x:hidden;
+    height: 95%;
+    padding: 10px;
   }
 
   .rightArea .rightTop .el-card {
