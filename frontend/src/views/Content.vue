@@ -12,7 +12,8 @@
             :data="data" 
             :props="defaultProps" 
             ref="tree"
-            show-checkbox 
+            show-checkbox
+            default-expand-all 
             @node-click="handleNodeClick">
         </el-tree>
       </div>
@@ -116,9 +117,15 @@
                 child.push(tmp_child);
             }
           }
-          if(child.length>0)
+          let count = new Array();
+          if(child.length>0){
             ifSelect = true;
-          let tmp = {label:masterURL_array[i],children:child,style:'master',disabled:ifSelect,id:i};
+            let empty = new Array();
+            let sen  = {label:"  -Total URL:"+String(child.length),children:empty,style:"child",disabled:true};
+            count.push(sen);
+          } 
+          //let tmp = {label:masterURL_array[i],children:child,style:'master',disabled:ifSelect,id:i};
+          let tmp = {label:masterURL_array[i],children:count,style:'master',disabled:ifSelect,id:i};
           treeData.push(tmp);
         }
         this.data = treeData;
@@ -154,6 +161,7 @@
         let child_array = response.data.childURL;
         let treeData = new Array();
         for(let i=0;i<masterURL_array.length;i++){
+          let ifSelect = false;
           let child = new Array();
           if(i<child_array.length){
             for(let j=0;j<child_array[i].length;j++){
@@ -162,7 +170,15 @@
                 child.push(tmp_child);
             }
           }
-          let tmp = {label:masterURL_array[i],children:child,style:"master",disabled:true,id:i};
+          let count = new Array();
+          if(child.length>0){
+            ifSelect = true;
+            let empty = new Array();
+            let sen = {label:"  -Total URL:"+String(child.length),children:empty,style:"child",disabled:true};
+            count.push(sen);
+          }
+          //let tmp = {label:masterURL_array[i],children:child,style:'master',disabled:ifSelect,id:i};
+          let tmp = {label:masterURL_array[i],children:count,style:'master',disabled:ifSelect,id:i};
           treeData.push(tmp);
         }
         this.data = treeData;

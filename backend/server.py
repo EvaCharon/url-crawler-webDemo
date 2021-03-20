@@ -2,6 +2,7 @@ import spider
 from flask import Flask, render_template, json, jsonify, request
 import flask_restful
 import threading
+import time
 
 app = Flask(__name__)
 api = flask_restful.Api(app)
@@ -32,6 +33,7 @@ def run_select(indexList):
             working_state.append({"text": k})
         cnt += 1
     working_state.append({"text": "All Scanning Done"})
+    time.sleep(1.5)
     global _if_update_state
     global _if_update_URL
     _if_update_state = False
@@ -62,6 +64,7 @@ def run():
                 working_state.append({"text": k})
             cnt += 1
         working_state.append({"text": "All Scanning Done"})
+        time.sleep(1.5)
         global _if_update_state
         global _if_update_URL
         _if_update_state = False
