@@ -89,10 +89,10 @@ def scan_single_url(url, spider_deepth):
         url_tree.update(help_set)
     return url_tree
 ## store data into txt file
-def output(filename):
-    url = site_url
+def output(filename,data):
+    url = data
     f_name = filename
-    with open(f_name,'w') as files:
+    with open(f_name,'a+') as files:
         for u in url:
             files.write(u + '\n')
         files.close()

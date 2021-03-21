@@ -32,6 +32,7 @@ def run_select(indexList):
         for k in states:
             working_state.append({"text": k})
         cnt += 1
+        spider.output('output.txt', child_tmp)
     working_state.append({"text": "All Scanning Done"})
     time.sleep(1.5)
     global _if_update_state
@@ -63,6 +64,8 @@ def run():
             for k in states:
                 working_state.append({"text": k})
             cnt += 1
+            # add content to output.txt
+            spider.output("output.txt", child_tmp)
         working_state.append({"text": "All Scanning Done"})
         time.sleep(1.5)
         global _if_update_state
